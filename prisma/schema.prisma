@@ -1,0 +1,122 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model Site {
+  id          String       @id @default(uuid())
+  code        String       @unique
+  name        String
+  province    String       @default("Ontario")
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  departments Department[]
+  zones       Zone[]
+  assets      Asset[]
+}
+model Department {
+  id           String        @id @default(uuid())
+  siteId       String
+  site         Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  name         String
+  employees    Employee[]
+  jobFunctions JobFunction[]
+}
+model Employee {
+  id             String           @id @default(uuid())
+  departmentId   String
+  department     Department       @relation(fields: [departmentId], references: [id])
+  employeeNumber String           @unique
+  firstName      String
+  lastName       String
+  email          String           @unique
+  isActive       Boolean          @default(true)
+  certifications Certification[]
+  assignments    WorkAssignment[]
+  auditLogs      AuditLog[]       @relation("UserActions")
+}
+model JobFunction {
+  id           String           @id @default(uuid())
+  departmentId String
+  department   Department       @relation(fields: [departmentId], references: [id])
+  title        String
+  requiresCert Boolean          @default(false)
+  assignments  WorkAssignment[]
+}
+model Certification {
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  type       String
+  issuedDate DateTime
+  expiryDate DateTime
+  isValid    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+model Zone {
+  id          String           @id @default(uuid())
+  siteId      String
+  site        Site             @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  name        String
+  code        String
+  assignments WorkAssignment[]
+}
+model WorkAssignment {
+  id             String      @id @default(uuid())
+  employeeId     String
+  employee       Employee    @relation(fields: [employeeId], references: [id])
+  zoneId         String
+  zone           Zone        @relation(fields: [zoneId], references: [id])
+  jobFunctionId  String
+  jobFunction    JobFunction @relation(fields: [jobFunctionId], references: [id])
+  startTime      DateTime    @default(now())
+  endTime        DateTime?
+  overrideUsed   Boolean     @default(false)
+  overrideReason String?
+  createdAt      DateTime    @default(now())
+}
+model Asset {
+  id          String       @id @default(uuid())
+  siteId      String
+  site        Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  assetTag    String       @unique
+  name        String
+  category    String
+  isLockedOut Boolean      @default(false)
+  workOrders  WorkOrder[]
+  inspections Inspection[]
+}
+model WorkOrder {
+  id          String   @id @default(uuid())
+  assetId     String
+  asset       Asset    @relation(fields: [assetId], references: [id])
+  priority    String
+  status      String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+model Inspection {
+  id           String   @id @default(uuid())
+  assetId      String
+  asset        Asset    @relation(fields: [assetId], references: [id])
+  inspectorId  String
+  passed       Boolean
+  failureNotes String?
+  createdAt    DateTime @default(now())
+}
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String
+  user          Employee @relation("UserActions", fields: [userId], references: [id])
+  action        String
+  entityName    String
+  entityId      String
+  previousValue String?
+  newValue      String?
+  sourceIp      String?
+  timestamp     DateTime @default(now())
+}
