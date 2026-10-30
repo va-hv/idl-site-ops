@@ -4,5 +4,11 @@
     "ioredis": "^6.0.0",
     "prisma": "^8.0.0-rc.29",
     "redis": "^6.3.1"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }
