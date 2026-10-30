@@ -2,9 +2,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 generator client {
   provider = "prisma-client-js"
 }
+
 model Site {
   id          String       @id @default(uuid())
   code        String       @unique
@@ -16,7 +18,12 @@ model Site {
   departments Department[]
   zones       Zone[]
   assets      Asset[]
+  incidents   Incident[]
+  visitors    VisitorLog[]
+  audits      ComplianceAudit[]
+  andonAlerts AndonAlert[]
 }
+
 model Department {
   id           String        @id @default(uuid())
   siteId       String
@@ -25,19 +32,25 @@ model Department {
   employees    Employee[]
   jobFunctions JobFunction[]
 }
+
 model Employee {
-  id             String           @id @default(uuid())
-  departmentId   String
-  department     Department       @relation(fields: [departmentId], references: [id])
-  employeeNumber String           @unique
-  firstName      String
-  lastName       String
-  email          String           @unique
-  isActive       Boolean          @default(true)
-  certifications Certification[]
-  assignments    WorkAssignment[]
-  auditLogs      AuditLog[]       @relation("UserActions")
+  id              String           @id @default(uuid())
+  departmentId    String
+  department      Department       @relation(fields: [departmentId], references: [id])
+  employeeNumber  String           @unique
+  firstName       String
+  lastName        String
+  email           String           @unique
+  isActive        Boolean          @default(true)
+  certifications  Certification[]
+  assignments     WorkAssignment[]
+  auditLogs       AuditLog[]       @relation("UserActions")
+  workOrders      WorkOrder[]      @relation("AssignedTechnician")
+  itTickets       ITTicket[]
+  kaizens         Kaizen[]
+  pulseResponses  PulseSurvey[]
 }
+
 model JobFunction {
   id           String           @id @default(uuid())
   departmentId String
@@ -46,16 +59,18 @@ model JobFunction {
   requiresCert Boolean          @default(false)
   assignments  WorkAssignment[]
 }
+
 model Certification {
   id         String   @id @default(uuid())
   employeeId String
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  type       String
+  type       String   // PIT_FORKLIFT, FIRST_AID, WHMIS, FALL_PROTECTION, RACKING_INSPECTION
   issuedDate DateTime
   expiryDate DateTime
   isValid    Boolean  @default(true)
   createdAt  DateTime @default(now())
 }
+
 model Zone {
   id          String           @id @default(uuid())
   siteId      String
@@ -64,6 +79,7 @@ model Zone {
   code        String
   assignments WorkAssignment[]
 }
+
 model WorkAssignment {
   id             String      @id @default(uuid())
   employeeId     String
@@ -78,27 +94,44 @@ model WorkAssignment {
   overrideReason String?
   createdAt      DateTime    @default(now())
 }
+
 model Asset {
-  id          String       @id @default(uuid())
-  siteId      String
-  site        Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  assetTag    String       @unique
-  name        String
-  category    String
-  isLockedOut Boolean      @default(false)
-  workOrders  WorkOrder[]
-  inspections Inspection[]
+  id           String       @id @default(uuid())
+  siteId       String
+  site         Site         @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  assetTag     String       @unique
+  name         String
+  category     String       // CONVEYOR, SORTER, PIT_TRUCK, SCANNER, PRINTER
+  isLockedOut  Boolean      @default(false)
+  uptimePct    Float        @default(100.0)
+  workOrders   WorkOrder[]
+  inspections  Inspection[]
+  spareParts   SparePart[]
 }
+
 model WorkOrder {
+  id            String    @id @default(uuid())
+  assetId       String
+  asset         Asset     @relation(fields: [assetId], references: [id])
+  technicianId  String?
+  technician    Employee? @relation("AssignedTechnician", fields: [technicianId], references: [id])
+  priority      String    // LOW, MEDIUM, HIGH, CRITICAL
+  status        String    // OPEN, IN_PROGRESS, RESOLVED, CLOSED
+  description   String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model SparePart {
   id          String   @id @default(uuid())
   assetId     String
   asset       Asset    @relation(fields: [assetId], references: [id])
-  priority    String
-  status      String
-  description String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  partName    String
+  sku         String   @unique
+  stockLevel  Int
+  minThreshold Int     @default(5)
 }
+
 model Inspection {
   id           String   @id @default(uuid())
   assetId      String
@@ -108,6 +141,112 @@ model Inspection {
   failureNotes String?
   createdAt    DateTime @default(now())
 }
+
+model Incident {
+  id          String   @id @default(uuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  type        String   // NEAR_MISS, INJURY, ERGONOMICS, PROPERTY_DAMAGE
+  severity    String   // LOW, MEDIUM, HIGH
+  description String
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+}
+
+model Kaizen {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  title       String
+  description String
+  status      String   @default("SUBMITTED")
+  createdAt   DateTime @default(now())
+}
+
+model AndonAlert {
+  id          String   @id @default(uuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  station     String
+  issue       String
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+}
+
+model QualityDefect {
+  id          String   @id @default(uuid())
+  sku         String
+  defectType  String
+  rootCause   String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+}
+
+model VisitorLog {
+  id          String   @id @default(uuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  visitorName String
+  company     String
+  badgeNumber String
+  signedInAt  DateTime @default(now())
+  signedOutAt DateTime?
+}
+
+model FacilityAudit {
+  id          String   @id @default(uuid())
+  category    String   // ENERGY, WASTE, RACKING, FIRE_SYSTEM
+  score       Float
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model SOPDocument {
+  id          String   @id @default(uuid())
+  title       String
+  version     String   @default("1.0")
+  content     String
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model ITTicket {
+  id          String    @id @default(uuid())
+  employeeId  String
+  employee    Employee  @relation(fields: [employeeId], references: [id])
+  deviceTag   String
+  issue       String
+  status      String    @default("OPEN")
+  createdAt   DateTime  @default(now())
+}
+
+model PulseSurvey {
+  id          String   @id @default(uuid())
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  rating      Int      // 1 to 5
+  feedback    String?
+  createdAt   DateTime @default(now())
+}
+
+model ComplianceAudit {
+  id          String   @id @default(uuid())
+  siteId      String
+  site        Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  auditName   String   // MOL_INSPECTION, ISO_9001, FIRE_SYSTEM_CERT
+  status      String   // PASSED, ACTION_REQUIRED
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
+}
+
+model ProcurementRequest {
+  id           String   @id @default(uuid())
+  itemCategory String  // PACKAGING, STRETCH_WRAP, PPE, LABELS
+  quantity     Int
+  status       String   @default("PENDING_APPROVAL")
+  createdAt    DateTime @default(now())
+}
+
 model AuditLog {
   id            String   @id @default(uuid())
   userId        String
