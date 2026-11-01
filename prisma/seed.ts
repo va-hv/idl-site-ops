@@ -3,91 +3,50 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  await prisma.auditLog.deleteMany()
-  await prisma.workAssignment.deleteMany()
-  await prisma.inspection.deleteMany()
-  await prisma.workOrder.deleteMany()
-  await prisma.asset.deleteMany()
-  await prisma.certification.deleteMany()
-  await prisma.jobFunction.deleteMany()
+  await prisma.metric.deleteMany()
+  await prisma.operationalLog.deleteMany()
   await prisma.employee.deleteMany()
-  await prisma.department.deleteMany()
-  await prisma.site.deleteMany()
+  await prisma.andonAlert.deleteMany()
 
-  const site = await prisma.site.create({
-    data: {
-      code: 'YYZ-01',
-      name: 'ID Logistics Canada - Fulfillment Centre',
-      province: 'Ontario'
-    }
+  await prisma.metric.createMany({
+    data: [
+      { moduleId: 'whs', key: 'TRIR', value: '0.42', status: 'NORMAL' },
+      { moduleId: 'whs', key: 'DART', value: '0.18', status: 'NORMAL' },
+      { moduleId: 'rme', key: 'Conveyor Uptime', value: '99.1%', status: 'NORMAL' },
+      { moduleId: 'wfm', key: 'Labor Utilization', value: '92.4%', status: 'NORMAL' },
+      { moduleId: 'ci', key: 'Andon MTTR', value: '3.2 mins', status: 'NORMAL' },
+      { moduleId: 'quality', key: 'Outbound Defect Rate', value: '142 PPM', status: 'NORMAL' },
+      { moduleId: 'security', key: 'Carrier Turnaround', value: '42 mins', status: 'NORMAL' },
+      { moduleId: 'facilities', key: 'Energy Efficiency (PUE)', value: '1.18', status: 'NORMAL' },
+      { moduleId: 'visitors', key: 'Active Contractors', value: '12 Personnel', status: 'NORMAL' },
+      { moduleId: 'compliance', key: 'Audit Readiness', value: '98.5%', status: 'NORMAL' },
+      { moduleId: 'documents', key: 'Active SOP Compliance', value: '99.4%', status: 'NORMAL' },
+      { moduleId: 'it', key: 'RF Scanners Online', value: '142 / 145', status: 'NORMAL' },
+      { moduleId: 'my-work', key: 'Pending Approvals', value: '4 Items', status: 'NORMAL' },
+      { moduleId: 'reporting', key: 'Scheduled Reports', value: '12 Reports', status: 'NORMAL' },
+      { moduleId: 'admin', key: 'Active RBAC Users', value: '184 Accounts', status: 'NORMAL' },
+    ],
   })
 
-  const dept = await prisma.department.create({
-    data: {
-      siteId: site.id,
-      name: 'Material Handling & Yard'
-    }
+  await prisma.employee.createMany({
+    data: [
+      { employeeId: 'IDL-88201', name: 'Marcus Brody', department: 'Inbound RME', shift: 'Shift A (07:00 - 15:30)', status: 'CLOCK_IN' },
+      { employeeId: 'IDL-88204', name: 'Sarah Jenkins', department: 'WHS Safety', shift: 'Shift A (07:00 - 15:30)', status: 'CLOCK_IN' },
+      { employeeId: 'IDL-88310', name: 'Ritesh Kumar', department: 'Operations Lead', shift: 'Shift A (07:00 - 15:30)', status: 'CLOCK_IN' },
+    ],
   })
 
-  const jobFunction = await prisma.jobFunction.create({
+  await prisma.andonAlert.create({
     data: {
-      departmentId: dept.id,
-      title: 'Reach Truck Operator',
-      requiresCert: true
-    }
+      alertId: 'ANDON-402',
+      station: 'Zone C - Pack Station 12',
+      issue: 'Material Shortage (Boxes)',
+      duration: '4 mins',
+      status: 'ACKNOWLEDGED',
+    },
   })
 
-  const zone = await prisma.zone.create({
-    data: {
-      siteId: site.id,
-      name: 'High-Bay Racking Zone A',
-      code: 'ZONE-A'
-    }
-  })
-
-  // Worker 1: Expired Certification (Should trigger Hard Safety Block)
-  const expiredWorker = await prisma.employee.create({
-    data: {
-      departmentId: dept.id,
-      employeeNumber: 'EMP-1001',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@idlogistics.test'
-    }
-  })
-
-  await prisma.certification.create({
-    data: {
-      employeeId: expiredWorker.id,
-      type: 'PIT_FORKLIFT',
-      issuedDate: new Date('2023-01-01'),
-      expiryDate: new Date('2024-01-01'), // Expired
-      isValid: false
-    }
-  })
-
-  // Worker 2: Valid Certification
-  const validWorker = await prisma.employee.create({
-    data: {
-      departmentId: dept.id,
-      employeeNumber: 'EMP-1002',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      email: 'jane.smith@idlogistics.test'
-    }
-  })
-
-  await prisma.certification.create({
-    data: {
-      employeeId: validWorker.id,
-      type: 'PIT_FORKLIFT',
-      issuedDate: new Date('2025-01-01'),
-      expiryDate: new Date('2028-01-01'), // Valid
-      isValid: true
-    }
-  })
-
-  console.log('🌱 Database seeded successfully!')
+  console.log('Database seeded successfully!')
 }
 
 main()

@@ -1,29 +1,143 @@
-export interface SystemModule {
+export interface ModuleMeta {
   id: string
   title: string
   category: string
   description: string
-  enabled: boolean
-  badge?: string
+  icon: string
 }
 
-export const INITIAL_MODULES: SystemModule[] = [
-  { id: 'control-tower', title: 'Control Tower Headquarters', category: 'Core', description: 'Real-time multi-node overview, volume, backlog, and staffing.', enabled: true, badge: 'HQ' },
-  { id: 'whs', title: 'Safety (WHS) & Ergonomics', category: 'Safety & Compliance', description: 'PIT licence register, safety blocks, and ergonomic assessments.', enabled: true },
-  { id: 'rme', title: 'Maintenance & Reliability (RME)', category: 'Engineering', description: 'Work orders, preventive maintenance, spare parts, and conveyor uptime.', enabled: true },
-  { id: 'wfm', title: 'People & HR Workforce', category: 'Operations', description: 'Rosters, attendance, onboarding, training, and shift schedules.', enabled: true },
-  { id: 'ci', title: 'Continuous Improvement & Andon', category: 'Operations', description: 'Kaizen ideas, Gemba walks, 5S audits, and live Andon floor alerts.', enabled: true },
-  { id: 'quality', title: 'Quality & Defect Tracking', category: 'Compliance', description: 'Defect logging, root-cause analysis (RCA), and audit results.', enabled: true },
-  { id: 'security', title: 'Security & Loss Prevention', category: 'Facility', description: 'Gate logs, visitor management, and high-value item tracking.', enabled: true },
-  { id: 'facilities', title: 'Facilities & Sustainability', category: 'Facility', description: 'Energy consumption, waste management, recycling, and building checks.', enabled: false },
-  { id: 'learning', title: 'Learning & SOP Academy', category: 'Training', description: 'Role-based training paths, SOP library, short videos, and floor sign-offs.', enabled: false },
-  { id: 'communications', title: 'Communications & Handover', category: 'Operations', description: 'Daily start-up meeting notes, site announcements, and digital notice boards.', enabled: false },
-  { id: 'engagement', title: 'Associate Engagement', category: 'HR', description: 'Pulse surveys, peer recognition, suggestion follow-ups, and "ask the manager".', enabled: false },
-  { id: 'compliance', title: 'Compliance & Legal Audits', category: 'Safety & Compliance', description: 'Internal audit schedules, regulatory inspection records, and statutory certificates.', enabled: true },
-  { id: 'procurement', title: 'Procurement & Consumables', category: 'Supply Chain', description: 'Packaging, stretch wrap, labels, PPE stock levels, and purchase requests.', enabled: true },
-  { id: 'documents', title: 'Document Control', category: 'Compliance', description: 'Version-controlled SOPs, approval workflows, and read-and-acknowledge tracking.', enabled: false },
-  { id: 'it', title: 'IT & Device Fleet', category: 'Infrastructure', description: 'Zebra/Honeywell scanner, printer and tablet inventory, and IT helpdesk tickets.', enabled: true },
-  { id: 'my-work', title: 'My Work Inbox', category: 'Personal', description: 'Unified personal inbox for pending tasks, approvals, and expiring certifications.', enabled: true },
-  { id: 'reporting', title: 'Reporting & Analytics', category: 'Intelligence', description: 'Custom dashboards, scheduled email reports, data exports, and wall-screen views.', enabled: true },
-  { id: 'admin', title: 'Administration & Integrations', category: 'System', description: 'Users, RBAC permissions, site setup, audit trails, and WMS/HRIS connectors.', enabled: true }
+export const INITIAL_MODULES: ModuleMeta[] = [
+  {
+    id: 'operations-overview',
+    title: 'Ambari Operations Overview',
+    category: 'CORE OPERATIONS',
+    description: 'Centralized live telemetry, node health, and fulfillment throughput.',
+    icon: '☷'
+  },
+  {
+    id: 'whs',
+    title: 'Safety & Compliance (WHS)',
+    category: 'GOVERNANCE & HR',
+    description: 'Incident logs, PIT pre-shift inspections, TRIR safety tracking, and CAPA corrective actions.',
+    icon: '🛡️'
+  },
+  {
+    id: 'rme',
+    title: 'Maintenance & RME',
+    category: 'FACILITY & ASSETS',
+    description: 'Conveyor PLC telemetry, sortation uptime, motor amp draws, and maintenance work orders.',
+    icon: '⚙️'
+  },
+  {
+    id: 'procurement',
+    title: 'Procurement & Consumables',
+    category: 'CORE OPERATIONS',
+    description: 'Packaging SKU stock levels, stretch film inventory, days cover, and purchase orders.',
+    icon: '📦'
+  },
+  {
+    id: 'quality',
+    title: 'Quality Assurance',
+    category: 'CORE OPERATIONS',
+    description: 'Outbound defect rate tracking in PPM, lot sample audits, and quarantine cage management.',
+    icon: '🔍'
+  },
+  {
+    id: 'visitors',
+    title: 'Visitors & Contractors',
+    category: 'GOVERNANCE & HR',
+    description: 'Active freight carrier check-ins, dock turnarounds, vendor badges, and digital inductions.',
+    icon: '🚛'
+  },
+  {
+    id: 'security',
+    title: 'Gatehouse & Security',
+    category: 'GOVERNANCE & HR',
+    description: 'Trailer seal verification, perimeter camera feeds, BOL matching, and gate access logs.',
+    icon: '🔒'
+  },
+  {
+    id: 'it',
+    title: 'IT & Device Fleet',
+    category: 'FACILITY & ASSETS',
+    description: 'Zebra TC57 RF scanner pool online status, battery health averages, and MDM compliance.',
+    icon: '📱'
+  },
+  {
+    id: 'facilities',
+    title: 'Facilities & ESG',
+    category: 'FACILITY & ASSETS',
+    description: 'Warehouse HVAC thermal balance, PUE energy efficiency ratio, and cardboard baler telemetry.',
+    icon: '⚡'
+  },
+  {
+    id: 'wfm',
+    title: 'Workforce & Labor Management',
+    category: 'GOVERNANCE & HR',
+    description: 'Shift rosters, associate clock-in counts, labor utilization rates, and staffing efficiency.',
+    icon: '👥'
+  },
+  {
+    id: 'ci',
+    title: 'Continuous Improvement (Andon)',
+    category: 'CORE OPERATIONS',
+    description: 'Active floor Andon alerts, pack station box shortages, and MTTR response tracking.',
+    icon: '🔔'
+  },
+  {
+    id: 'learning',
+    title: 'Learning & SOP Academy',
+    category: 'GOVERNANCE & HR',
+    description: 'PIT forklift certifications, dangerous goods handling compliance, and training records.',
+    icon: '🎓'
+  },
+  {
+    id: 'communications',
+    title: 'Shift Handover Communications',
+    category: 'CORE OPERATIONS',
+    description: 'Morning shift transition logs, volume surge forecasts, and enterprise broadcast feeds.',
+    icon: '📢'
+  },
+  {
+    id: 'engagement',
+    title: 'Associate Engagement',
+    category: 'GOVERNANCE & HR',
+    description: 'Employee eNPS score tracking, retention metrics, and workplace satisfaction indexes.',
+    icon: '⭐'
+  },
+  {
+    id: 'compliance',
+    title: 'Statutory Compliance & Legal',
+    category: 'GOVERNANCE & HR',
+    description: 'Ministry of Labour audit readiness, statutory inspection dates, and compliance records.',
+    icon: '📋'
+  },
+  {
+    id: 'documents',
+    title: 'Document Control & Master SOPs',
+    category: 'GOVERNANCE & HR',
+    description: 'Pallet racking master SOPs, revision control history, and staff acknowledgment logs.',
+    icon: '📁'
+  },
+  {
+    id: 'my-work',
+    title: 'My Work Inbox',
+    category: 'CORE OPERATIONS',
+    description: 'Pending executive approvals, stretch film PO signatures, and assigned task workflows.',
+    icon: '📥'
+  },
+  {
+    id: 'reporting',
+    title: 'Reporting & Analytics Suite',
+    category: 'CORE OPERATIONS',
+    description: 'Automated executive summary CSV dispatches, performance trend graphs, and data exports.',
+    icon: '📊'
+  },
+  {
+    id: 'admin',
+    title: 'System Administration & Integrations',
+    category: 'FACILITY & ASSETS',
+    description: 'WMS / SAP enterprise webhook connectors, API latency monitoring, and node security.',
+    icon: '🛠️'
+  }
 ]

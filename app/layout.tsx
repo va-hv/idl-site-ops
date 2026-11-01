@@ -1,10 +1,6 @@
-import './globals.css'
-import type { Metadata } from 'react'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'ID Logistics Canada - Site Operations Platform',
-  description: 'Centralized Site Operations & Facility Management Platform',
-}
+import './globals.css'
 
 export default function RootLayout({
   children,
@@ -12,8 +8,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#0a0a0a] text-zinc-100 antialiased min-h-screen">
+    <html lang="en" className="h-full bg-[#070708]">
+      <body className="h-full m-0 p-0 bg-[#070708] text-zinc-100 antialiased overflow-x-hidden">
         {children}
       </body>
     </html>
