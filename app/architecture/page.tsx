@@ -1,13 +1,14 @@
-'import React, { useState } from \'react\';
-import Link from \'next/link\';
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
 
 export default function ArchitecturePage() {
   const [activeTab, setActiveTab] = useState<'erd' | 'principles' | 'stack'>('erd');
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* Top Navigation Bar */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+      <header className="border-b border-slate-800 bg-slate-900/85 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center space-x-3">
           <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-indigo-500/30">
             A
@@ -27,7 +28,6 @@ export default function ArchitecturePage() {
         </div>
       </header>
 
-      {/* Sub-navigation Tabs */}
       <div className="bg-slate-900/50 border-b border-slate-800 px-6 py-3 flex space-x-6">
         <button
           onClick={() => setActiveTab('erd')}
@@ -49,26 +49,22 @@ export default function ArchitecturePage() {
         </button>
       </div>
 
-      {/* Main Content Area */}
       <main className="flex-1 p-8 max-w-7xl mx-auto w-full">
         {activeTab === 'erd' && (
           <div className="space-y-6">
             <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl">
               <h2 className="text-xl font-bold text-white mb-2">Normalized 4-Table SQLite Architecture</h2>
               <p className="text-sm text-slate-400 mb-6">
-                Optimized polymorphic relational model powering all 18 enterprise facility modules with sub-millisecond query performance.
+                Optimized polymorphic relational model powering all enterprise facility modules with sub-millisecond query performance.
               </p>
 
-              {/* Vector SVG ERD Visualization */}
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-6 overflow-x-auto">
                 <svg viewBox="0 0 900 450" className="w-full h-auto min-w-[700px]">
-                  {/* Connections / Relations */}
                   <path d="M 220 120 L 400 120" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
                   <path d="M 220 150 L 450 300" stroke="#6366f1" strokeWidth="2" strokeDasharray="4" />
                   <path d="M 680 120 L 730 120" stroke="#10b981" strokeWidth="2" />
                   <path d="M 680 320 L 730 320" stroke="#f59e0b" strokeWidth="2" />
 
-                  {/* ModuleMeta Table */}
                   <g transform="translate(40, 60)">
                     <rect width="180" height="140" rx="8" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
                     <rect width="180" height="36" rx="8" fill="#312e81" />
@@ -78,7 +74,6 @@ export default function ArchitecturePage() {
                     <text x="15" y="110" fill="#e2e8f0" fontSize="11">leadName, sla</text>
                   </g>
 
-                  {/* ModuleMetric Table */}
                   <g transform="translate(400, 60)">
                     <rect width="280" height="140" rx="8" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
                     <rect width="280" height="36" rx="8" fill="#065f46" />
@@ -88,7 +83,6 @@ export default function ArchitecturePage() {
                     <text x="15" y="110" fill="#e2e8f0" fontSize="11">metricKey, value, status</text>
                   </g>
 
-                  {/* ModulePanel Table */}
                   <g transform="translate(400, 240)">
                     <rect width="280" height="140" rx="8" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
                     <rect width="280" height="36" rx="8" fill="#92400e" />
@@ -98,7 +92,6 @@ export default function ArchitecturePage() {
                     <text x="15" y="110" fill="#e2e8f0" fontSize="11">title, badge, meta</text>
                   </g>
 
-                  {/* SimulationEvent Table */}
                   <g transform="translate(730, 160)">
                     <rect width="160" height="180" rx="8" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
                     <rect width="160" height="36" rx="8" fill="#831843" />
@@ -122,25 +115,25 @@ export default function ArchitecturePage() {
                 <div className="bg-slate-950 p-5 rounded-lg border border-slate-800">
                   <h3 className="font-semibold text-indigo-400 mb-2">1. Local-First Architecture</h3>
                   <p className="text-sm text-slate-300">
-                    Utilizing native Node.js `node:sqlite` directly interacting with `prisma/dev.db` eliminates network latency and external database connection overhead, ensuring instant boot times.
+                    Utilizing native Node.js node:sqlite directly interacting with prisma/dev.db eliminates network latency and external database connection overhead.
                   </p>
                 </div>
                 <div className="bg-slate-950 p-5 rounded-lg border border-slate-800">
                   <h3 className="font-semibold text-indigo-400 mb-2">2. Autonomous Background Workers</h3>
                   <p className="text-sm text-slate-300">
-                    The `simulation-sink.js` worker operates asynchronously, pumping realistic domain telemetry events into SQLite without blocking Next.js API route handlers.
+                    The simulation-sink.js worker operates asynchronously, pumping realistic domain telemetry events into SQLite without blocking API routes.
                   </p>
                 </div>
                 <div className="bg-slate-950 p-5 rounded-lg border border-slate-800">
                   <h3 className="font-semibold text-indigo-400 mb-2">3. Zero-Latency UI Polling</h3>
                   <p className="text-sm text-slate-300">
-                    Frontend workspaces leverage optimized React hooks polling localized SQLite views for instantaneous status updates across all 18 facility operations modules.
+                    Frontend workspaces leverage optimized React hooks polling localized SQLite views for instantaneous status updates.
                   </p>
                 </div>
                 <div className="bg-slate-950 p-5 rounded-lg border border-slate-800">
                   <h3 className="font-semibold text-indigo-400 mb-2">4. Enterprise Governance</h3>
                   <p className="text-sm text-slate-300">
-                    Modeled after rigorous second-line-of-defense (2LOD) control testing standards to guarantee complete auditability, metric validation, and high SLA compliance.
+                    Modeled after rigorous second-line-of-defense (2LOD) control testing standards to guarantee auditability and high SLA compliance.
                   </p>
                 </div>
               </div>
@@ -163,7 +156,7 @@ export default function ArchitecturePage() {
                 <div className="text-center text-slate-600">↓ writes via node:sqlite</div>
                 <div className="flex items-center space-x-4 p-3 bg-slate-900 rounded border border-slate-800">
                   <span className="px-2 py-1 bg-emerald-900 text-emerald-300 rounded">Storage</span>
-                  <span>Normalized SQLite Database (`prisma/dev.db`)</span>
+                  <span>Normalized SQLite Database (prisma/dev.db)</span>
                 </div>
                 <div className="text-center text-slate-600">↓ queried via Next.js API Routes</div>
                 <div className="flex items-center space-x-4 p-3 bg-slate-900 rounded border border-slate-800">

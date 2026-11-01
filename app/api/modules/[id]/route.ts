@@ -1,30 +1,44 @@
-import { NextResponse } from 'next/server'
-import { DatabaseSync } from 'node:sqlite'
-import path from 'path'
+import { NextResponse } from 'next/server';
+import { DatabaseSync } from 'node:sqlite';
+import path from 'path';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-  const moduleId = params.id
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const resolvedParams = await params;
+  const moduleId = resolvedParams.id;
 
   try {
-    const dbPath = path.join(process.cwd(), 'prisma', 'dev.db')
-    const db = new DatabaseSync(dbPath)
+    const dbPath = path.join(process.cwd(), 'prisma', 'dev.db');
+    const db = new DatabaseSync(dbPath);
 
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS SimulationEvent (
-        id TEXT PRIMARY KEY,
-        moduleId TEXT,
-        eventType TEXT,
-        payload TEXT,
-        severity TEXT,
-        createdAt TEXT
-      );
-    `)
+    let metaStmt = db.prepare('SELECT * FROM ModuleMeta WHERE id = ?');
+    let meta = metaStmt.get(moduleId);
 
-    const stmt = db.prepare('SELECT * FROM SimulationEvent WHERE moduleId = ? ORDER BY createdAt DESC LIMIT 10')
-    const simEvents = stmt.all(moduleId)
+    if (!meta) {
+      const title = moduleId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const insertStmt = db.prepare(`
+        INSERT OR IGNORE INTO ModuleMeta (id, title, category, description, leadName, leadSla, icon)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `);
+      insertStmt.run(moduleId, title, 'Enterprise Operations', `Live operational telemetry and automated controls for ${title}.`, 'Operations Lead', '99.9%', 'Activity');
+      meta = metaStmt.get(moduleId);
+    }
 
-    return NextResponse.json({ success: true, simEvents })
-  } catch (err) {
-    return NextResponse.json({ success: true, simEvents: [] })
+    const metricsStmt = db.prepare('SELECT * FROM ModuleMetric WHERE moduleId = ?');
+    const metrics = metricsStmt.all(moduleId);
+
+    const panelsStmt = db.prepare('SELECT * FROM ModulePanel WHERE moduleId = ?');
+    const panels = panelsStmt.all(moduleId);
+
+    return NextResponse.json({
+      meta,
+      metrics,
+      panels
+    });
+  } catch (error: any) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
